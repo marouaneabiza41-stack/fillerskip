@@ -1,0 +1,483 @@
+import { useState } from "react";
+
+const animes = [
+  {
+    id: 1,
+    name: "Naruto",
+    studio: "Pierrot",
+    totalEpisodes: 220,
+    fillerEpisodes: 91,
+    status: "Terminé",
+    genre: "Shonen",
+    image: "🍥",
+    color: "#f97316",
+    fillerList: [
+      { range: "26", episodes: [26], desc: "La mort de Sandayu" },
+      { range: "97", episodes: [97], desc: "Filler isolé" },
+      { range: "102–106", episodes: [102,103,104,105,106], desc: "Arc Land of Tea – Course de ninja" },
+      { range: "136–140", episodes: [136,137,138,139,140], desc: "Arc Land of Rice Fields – Orochimaru" },
+      { range: "143–219", episodes: Array.from({length:77},(_,i)=>i+143), desc: "Arc fillers de fin – Très peu lié au manga, peut être sauté presque entièrement" },
+    ],
+    mustWatch: "1-25, 27-96, 98-101, 107-135, 141-142, 220",
+    description: "Les aventures de Naruto Uzumaki, jeune ninja rêvant de devenir Hokage.",
+  },
+  {
+    id: 2,
+    name: "Naruto Shippuden",
+    studio: "Pierrot",
+    totalEpisodes: 500,
+    fillerEpisodes: 203,
+    status: "Terminé",
+    genre: "Shonen",
+    image: "🌀",
+    color: "#3b82f6",
+    fillerList: [
+      { range: "57–70", episodes: Array.from({length:14},(_,i)=>i+57), desc: "Arc Twelve Guardian Ninja – Gardes du Daimyo du pays du Feu" },
+      { range: "91–112", episodes: Array.from({length:22},(_,i)=>i+91), desc: "Arc Three-Tails – Capture de la bête à 3 queues" },
+      { range: "144–151", episodes: Array.from({length:8},(_,i)=>i+144), desc: "Fillers isolés entre les arcs" },
+      { range: "170–171", episodes: [170,171], desc: "Fillers isolés" },
+      { range: "176–196", episodes: Array.from({length:21},(_,i)=>i+176), desc: "Arc Past – Histoires du passé des personnages (Kakashi, Jiraiya...)" },
+      { range: "223–242", episodes: Array.from({length:20},(_,i)=>i+223), desc: "Fillers post-Pain – Après l'arc Pain, avant la guerre" },
+      { range: "257–260", episodes: [257,258,259,260], desc: "Fillers isolés pendant la guerre" },
+      { range: "271, 279–281", episodes: [271,279,280,281], desc: "Fillers isolés" },
+      { range: "284–295", episodes: Array.from({length:12},(_,i)=>i+284), desc: "Fillers guerre – Combats secondaires sans intérêt" },
+      { range: "303–320", episodes: Array.from({length:18},(_,i)=>i+303), desc: "Fillers guerre (suite) – Idem, peu pertinents" },
+      { range: "347–361", episodes: Array.from({length:15},(_,i)=>i+347), desc: "Fillers isolés" },
+      { range: "376–377", episodes: [376,377], desc: "Fillers isolés" },
+      { range: "389–390", episodes: [389,390], desc: "Fillers isolés" },
+      { range: "394–413", episodes: Array.from({length:20},(_,i)=>i+394), desc: "Arc Itachi Shinden – Passé d'Itachi (anime original)" },
+      { range: "416, 422–423", episodes: [416,422,423], desc: "Fillers isolés" },
+      { range: "427–450", episodes: Array.from({length:24},(_,i)=>i+427), desc: "Arc Infinite Tsukuyomi – Rêves de chaque personnage" },
+      { range: "464–469", episodes: Array.from({length:6},(_,i)=>i+464), desc: "Fillers isolés de fin" },
+      { range: "480–483", episodes: [480,481,482,483], desc: "Fillers fin de série – Avant le mariage de Naruto" },
+    ],
+    mustWatch: "1-56, 72-90, 113-143, 152-169, 172-175, 197-222, 243-256, 261-270, 272-278, 282-283, 296-302, 321-346, 362-375, 378-388, 391-393, 414-415, 417-421, 424-426, 451-463, 470-479, 484-500",
+    description: "La suite de Naruto, 2 ans et demi plus tard. L'arc le plus épique de la saga.",
+  },
+  {
+    id: 3,
+    name: "Boruto",
+    studio: "Pierrot",
+    totalEpisodes: 293,
+    fillerEpisodes: 48,
+    status: "En pause",
+    genre: "Shonen",
+    image: "⚡",
+    color: "#8b5cf6",
+    fillerList: [
+      { range: "16–17", episodes: [16,17], desc: "Fillers académie – Pas liés au manga" },
+      { range: "40–41", episodes: [40,41], desc: "Première mission de la Team 7 – Hors manga" },
+      { range: "48–50", episodes: [48,49,50], desc: "Fillers examen Chunin – Préparation inutile" },
+      { range: "67–69", episodes: [67,68,69], desc: "Arc Super Chocho – Très dispensable" },
+      { range: "98–104", episodes: [98,99,100,101,102,103,104], desc: "Arc Jugo – Virus de malédiction, hors manga" },
+      { range: "112–114", episodes: [112,113,114], desc: "Fillers Deepa – Introduction filler du personnage" },
+      { range: "116–119", episodes: [116,117,118,119], desc: "Fillers Victor – Arc hors manga" },
+      { range: "138–140", episodes: [138,139,140], desc: "Fillers Zai et les Anbu – Totalement hors manga" },
+      { range: "152–154", episodes: [152,153,154], desc: "Retour de Deepa – Filler de conclusion" },
+      { range: "156", episodes: [156], desc: "Filler isolé – Shojoji en prison" },
+      { range: "256–258", episodes: [256,257,258], desc: "Fillers de fin Partie 1 – Recette, Konohamaru Hokage, thermes" },
+    ],
+    mustWatch: "1-15, 18-39, 42-47, 51-66, 70-97, 105-111, 115, 120-137, 141-151, 155, 157-255, 259-293",
+    description: "Le fils de Naruto trace sa propre voie dans un monde en paix... pour l'instant.",
+  },
+  {
+    id: 4,
+    name: "One Piece",
+    studio: "Toei Animation",
+    totalEpisodes: 1122,
+    fillerEpisodes: 99,
+    status: "En cours",
+    genre: "Shonen",
+    image: "☠️",
+    color: "#ef4444",
+    fillerList: [
+      { range: "54–60", episodes: Array.from({length:7},(_,i)=>i+54), desc: "Arc Warship Island – Première île, hors manga" },
+      { range: "131–143", episodes: Array.from({length:13},(_,i)=>i+131), desc: "Arc Post-Alabasta – Aventures individuelles des membres de l'équipage" },
+      { range: "196–206", episodes: Array.from({length:11},(_,i)=>i+196), desc: "Arc Goat Island / Ocean's Dream – Fillers avant Skypiea" },
+      { range: "220–228", episodes: Array.from({length:9},(_,i)=>i+220), desc: "Arcs Ocean's Dream & Foxy's Return – Courts arcs hors manga" },
+      { range: "326–335", episodes: Array.from({length:10},(_,i)=>i+326), desc: "Arc Ice Hunter – Pendant l'arc Thriller Bark" },
+      { range: "382–384", episodes: [382,383,384], desc: "Arc Spa Island – Filler de pause" },
+      { range: "426–429", episodes: [426,427,428,429], desc: "Arc Little East Blue – Avant le film Strong World" },
+      { range: "575–578", episodes: [575,576,577,578], desc: "Arc Z's Ambition – Intro du film One Piece Film Z" },
+      { range: "895–896", episodes: [895,896], desc: "Fillers Carbonic Acid – Courts épisodes isolés" },
+      { range: "907", episodes: [907], desc: "Filler isolé" },
+    ],
+    mustWatch: "Tout le reste (canon = excellence pure)",
+    description: "Monkey D. Luffy et son équipage partent à la conquête du One Piece, le trésor ultime.",
+  },
+  {
+    id: 5,
+    name: "Dragon Ball Z",
+    studio: "Toei Animation",
+    totalEpisodes: 291,
+    fillerEpisodes: 66,
+    status: "Terminé",
+    genre: "Shonen",
+    image: "🐉",
+    color: "#eab308",
+    fillerList: [
+      { range: "8–9", episodes: [8,9], desc: "Fillers isolés – Début de la saga Saiyan" },
+      { range: "17", episodes: [17], desc: "Filler isolé" },
+      { range: "100–101", episodes: [100,101], desc: "Fillers Namek – Pendant l'arc Freezer" },
+      { range: "108–117", episodes: Array.from({length:10},(_,i)=>i+108), desc: "Arc Garlic Jr. – Personnage du film, hors manga" },
+      { range: "124–125", episodes: [124,125], desc: "Fillers isolés" },
+      { range: "170–194", episodes: Array.from({length:25},(_,i)=>i+170), desc: "Fillers autres mondes – Goku et ses amis dans d'autres dimensions" },
+      { range: "200–203", episodes: [200,201,202,203], desc: "Fillers Cell – Pendant la saga Cell" },
+      { range: "207, 215–217, 219–222", episodes: [207,215,216,217,219,220,222], desc: "Fillers isolés saga Cell/Majin Buu" },
+    ],
+    mustWatch: "1-7, 10-16, 18-99, 102-107, 118-123, 126-169, 195-199, 204-206, 208-214, 218, 221, 223-291",
+    description: "Goku et ses amis défendent la Terre contre des menaces toujours plus puissantes.",
+  },
+  {
+    id: 6,
+    name: "Bleach",
+    studio: "Pierrot",
+    totalEpisodes: 366,
+    fillerEpisodes: 163,
+    status: "Terminé",
+    genre: "Shonen",
+    image: "⚔️",
+    color: "#06b6d4",
+    fillerList: [
+      { range: "33, 50", episodes: [33,50], desc: "Fillers isolés" },
+      { range: "64–109", episodes: Array.from({length:46},(_,i)=>i+64), desc: "Arc Bount – Arc inventé, les Bounts sont des vampires de l'âme" },
+      { range: "128–137", episodes: Array.from({length:10},(_,i)=>i+128), desc: "Arc Stolen Hogyoku – Hors manga" },
+      { range: "147–149", episodes: [147,148,149], desc: "Fillers isolés" },
+      { range: "168–189", episodes: Array.from({length:22},(_,i)=>i+168), desc: "Arc Amagai – Capitaine Shinigami inventé" },
+      { range: "204–205", episodes: [204,205], desc: "Fillers isolés" },
+      { range: "213–214", episodes: [213,214], desc: "Fillers isolés" },
+      { range: "228–229", episodes: [228,229], desc: "Fillers isolés" },
+      { range: "230–266", episodes: Array.from({length:37},(_,i)=>i+230), desc: "Arc Zanpakuto – Les âmes des épées se rebellent" },
+      { range: "287–297", episodes: Array.from({length:11},(_,i)=>i+287), desc: "Arc Gotei 13 – Invasion des shinigamis du passé" },
+      { range: "298–299, 303–305", episodes: [298,299,303,304,305], desc: "Fillers isolés" },
+      { range: "355", episodes: [355], desc: "Filler isolé de fin" },
+    ],
+    mustWatch: "1-32, 34-49, 51-63, 110-127, 138-146, 150-167, 190-203, 206-212, 215-227, 267-286, 300-302, 306-310, 343-354, 356-366",
+    description: "Ichigo Kurosaki devient un Shinigami et protège les vivants des esprits malveillants.",
+  },
+  {
+    id: 7,
+    name: "Fairy Tail",
+    studio: "A-1 Pictures / Bridge",
+    totalEpisodes: 328,
+    fillerEpisodes: 72,
+    status: "Terminé",
+    genre: "Shonen",
+    image: "🧚",
+    color: "#ec4899",
+    fillerList: [
+      { range: "9, 19, 27", episodes: [9,19,27], desc: "Fillers isolés – Petites aventures hors manga" },
+      { range: "50–51", episodes: [50,51], desc: "Fillers isolés" },
+      { range: "69–75", episodes: Array.from({length:7},(_,i)=>i+69), desc: "Arc Key of the Starry Sky (début) – Arc inventé de la saison 1" },
+      { range: "125–150", episodes: Array.from({length:26},(_,i)=>i+125), desc: "Arc Key of the Starry Sky (suite) – Long arc hors manga à sauter" },
+      { range: "155–164", episodes: Array.from({length:10},(_,i)=>i+155), desc: "Fillers de transition – Avant la reprise du manga" },
+      { range: "213–218", episodes: Array.from({length:6},(_,i)=>i+213), desc: "Fillers isolés" },
+      { range: "227–228", episodes: [227,228], desc: "Fillers isolés" },
+    ],
+    mustWatch: "1-8, 10-18, 20-26, 28-49, 52-68, 76-124, 151-154, 165-212, 219-226, 229-328",
+    description: "Lucy rejoint la guilde Fairy Tail et part à l'aventure avec Natsu et ses amis.",
+  },
+  {
+    id: 8,
+    name: "Dragon Ball Super",
+    studio: "Toei Animation",
+    totalEpisodes: 131,
+    fillerEpisodes: 12,
+    status: "Terminé",
+    genre: "Shonen",
+    image: "💫",
+    color: "#10b981",
+    fillerList: [
+      { range: "1–14", episodes: Array.from({length:14},(_,i)=>i+1), desc: "Recap des films – Résumé de Battle of Gods et Resurrection F, regarder les films directement" },
+      { range: "31", episodes: [31], desc: "Filler isolé – Épisode de transition" },
+    ],
+    mustWatch: "15-30, 32-131",
+    description: "Après la défaite de Majin Buu, Goku continue de repousser ses limites dans l'univers entier.",
+  },
+  {
+    id: 9,
+    name: "Hunter x Hunter (2011)",
+    studio: "Madhouse",
+    totalEpisodes: 148,
+    fillerEpisodes: 2,
+    status: "Terminé",
+    genre: "Shonen",
+    image: "🎯",
+    color: "#84cc16",
+    fillerList: [
+      { range: "13", episodes: [13], desc: "Épisode recap – Résumé des 12 premiers épisodes, peut être sauté" },
+      { range: "26", episodes: [26], desc: "Épisode recap – Résumé de l'arc Heavens Arena" },
+    ],
+    mustWatch: "Pratiquement tout ! 1-12, 14-25, 27-148",
+    description: "Gon part à la recherche de son père, un Hunter légendaire. L'un des meilleurs animes jamais créés.",
+  },
+  {
+    id: 10,
+    name: "Attack on Titan",
+    studio: "MAPPA / WIT Studio",
+    totalEpisodes: 96,
+    fillerEpisodes: 2,
+    status: "Terminé",
+    genre: "Seinen",
+    image: "⚙️",
+    color: "#64748b",
+    fillerList: [
+      { range: "S1 Ép. 13", episodes: [13], desc: "Épisode recap Saison 1 – Résumé de la première moitié, peut être sauté" },
+      { range: "S2 Ép. 1", episodes: [26], desc: "Recap début Saison 2 – Résumé de la saison 1" },
+    ],
+    mustWatch: "Absolument tout. Zéro filler réel.",
+    description: "L'humanité survit derrière des murs gigantesques pour se protéger des Titans. Chef-d'œuvre absolu.",
+  },
+];
+
+function FillerBar({ percent }) {
+  const color = percent < 20 ? "#10b981" : percent < 40 ? "#f59e0b" : "#ef4444";
+  return (
+    <div style={{ marginTop: 8 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+        <span style={{ fontSize: "0.7rem", color: "#94a3b8", fontFamily: "monospace" }}>Fillers</span>
+        <span style={{ fontSize: "0.7rem", color, fontFamily: "monospace", fontWeight: "bold" }}>{percent}%</span>
+      </div>
+      <div style={{ height: 4, background: "rgba(255,255,255,0.08)", borderRadius: 99, overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${percent}%`, background: color, borderRadius: 99, transition: "width 0.6s ease" }} />
+      </div>
+    </div>
+  );
+}
+
+function AnimeCard({ anime, onClick }) {
+  const percent = Math.round((anime.fillerEpisodes / anime.totalEpisodes) * 100);
+  return (
+    <div
+      onClick={() => onClick(anime)}
+      style={{
+        background: "rgba(255,255,255,0.03)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        borderRadius: 14,
+        padding: "1.1rem",
+        cursor: "pointer",
+        transition: "all 0.2s",
+        position: "relative",
+        overflow: "hidden",
+      }}
+      onMouseEnter={e => { e.currentTarget.style.border = `1px solid ${anime.color}55`; e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}
+      onMouseLeave={e => { e.currentTarget.style.border = "1px solid rgba(255,255,255,0.08)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
+    >
+      <div style={{ position: "absolute", top: 0, left: 0, width: 3, height: "100%", background: anime.color, borderRadius: "14px 0 0 14px" }} />
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
+        <div style={{ fontSize: "1.6rem", flexShrink: 0 }}>{anime.image}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+            <h3 style={{ margin: 0, fontSize: "0.95rem", fontWeight: 600, color: "#f1f5f9" }}>{anime.name}</h3>
+            <span style={{
+              fontSize: "0.65rem", padding: "0.15rem 0.5rem", borderRadius: 99,
+              background: anime.status === "En cours" ? "rgba(16,185,129,0.15)" : anime.status === "En pause" ? "rgba(245,158,11,0.15)" : "rgba(100,116,139,0.2)",
+              color: anime.status === "En cours" ? "#34d399" : anime.status === "En pause" ? "#fbbf24" : "#94a3b8",
+              border: `1px solid ${anime.status === "En cours" ? "rgba(16,185,129,0.3)" : anime.status === "En pause" ? "rgba(245,158,11,0.3)" : "rgba(100,116,139,0.3)"}`,
+              fontFamily: "monospace", flexShrink: 0,
+            }}>{anime.status}</span>
+          </div>
+          <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: 2 }}>{anime.studio} · {anime.genre}</div>
+          <div style={{ display: "flex", gap: "1rem", marginTop: 8, flexWrap: "wrap" }}>
+            <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}><span style={{ color: "#f1f5f9", fontWeight: 600 }}>{anime.totalEpisodes}</span> éps total</span>
+            <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}><span style={{ color: "#ef4444", fontWeight: 600 }}>{anime.fillerEpisodes}</span> fillers</span>
+            <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}><span style={{ color: "#10b981", fontWeight: 600 }}>{anime.totalEpisodes - anime.fillerEpisodes}</span> canon</span>
+          </div>
+          <FillerBar percent={percent} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Detail({ anime, onBack }) {
+  const [expanded, setExpanded] = useState(null);
+  const percent = Math.round((anime.fillerEpisodes / anime.totalEpisodes) * 100);
+  const barColor = percent < 20 ? "#10b981" : percent < 40 ? "#f59e0b" : "#ef4444";
+
+  return (
+    <div style={{ maxWidth: 680, margin: "0 auto", padding: "0 1rem 3rem" }}>
+      <button
+        onClick={onBack}
+        style={{ background: "none", border: "1px solid rgba(255,255,255,0.12)", color: "#94a3b8", borderRadius: 8, padding: "0.4rem 0.9rem", cursor: "pointer", fontSize: "0.85rem", marginBottom: "1.25rem", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}
+      >
+        ← Retour
+      </button>
+
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
+        <div style={{ fontSize: "2.5rem" }}>{anime.image}</div>
+        <div>
+          <h2 style={{ margin: 0, fontSize: "1.4rem", color: "#f1f5f9" }}>{anime.name}</h2>
+          <div style={{ fontSize: "0.78rem", color: "#64748b" }}>{anime.studio} · {anime.genre} · {anime.status}</div>
+        </div>
+      </div>
+
+      <p style={{ color: "#94a3b8", fontSize: "0.88rem", lineHeight: 1.6, margin: "0 0 1.25rem" }}>{anime.description}</p>
+
+      {/* Stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.65rem", marginBottom: "1.25rem" }}>
+        {[
+          { label: "Total", value: anime.totalEpisodes, color: "#f1f5f9" },
+          { label: "Canon", value: anime.totalEpisodes - anime.fillerEpisodes, color: "#10b981" },
+          { label: "Fillers", value: anime.fillerEpisodes, color: "#ef4444" },
+        ].map(s => (
+          <div key={s.label} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "0.75rem", textAlign: "center" }}>
+            <div style={{ fontSize: "1.5rem", fontWeight: "bold", color: s.color }}>{s.value}</div>
+            <div style={{ fontSize: "0.68rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em" }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Progress bar */}
+      <div style={{ marginBottom: "1.5rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+          <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>Taux de fillers</span>
+          <span style={{ fontSize: "0.78rem", fontWeight: "bold", color: barColor }}>{percent}%</span>
+        </div>
+        <div style={{ height: 6, background: "rgba(255,255,255,0.08)", borderRadius: 99, overflow: "hidden" }}>
+          <div style={{ height: "100%", width: `${percent}%`, background: barColor, borderRadius: 99 }} />
+        </div>
+      </div>
+
+      {/* Fillers section */}
+      <div style={{ marginBottom: "1.5rem" }}>
+        <h3 style={{ fontSize: "0.82rem", color: "#f1f5f9", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "0.75rem" }}>
+          ❌ Épisodes à sauter — {anime.fillerEpisodes} éps
+        </h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
+          {anime.fillerList.map((f, i) => {
+            const isOpen = expanded === i;
+            const count = f.episodes ? f.episodes.length : 0;
+            return (
+              <div key={i} style={{ border: "1px solid rgba(239,68,68,0.2)", borderRadius: 10, overflow: "hidden", background: "rgba(239,68,68,0.05)" }}>
+                {/* Arc header — clickable */}
+                <div
+                  onClick={() => setExpanded(isOpen ? null : i)}
+                  style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.65rem 0.9rem", cursor: "pointer" }}
+                >
+                  <span style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#f87171", minWidth: 90, flexShrink: 0 }}>Ép. {f.range}</span>
+                  <span style={{ flex: 1, fontSize: "0.82rem", color: "#cbd5e1" }}>{f.desc}</span>
+                  <span style={{ fontSize: "0.7rem", color: "#475569", flexShrink: 0 }}>{count} éps</span>
+                  <span style={{ fontSize: "0.75rem", color: "#475569", flexShrink: 0, transition: "transform 0.2s", display: "inline-block", transform: isOpen ? "rotate(90deg)" : "none" }}>▶</span>
+                </div>
+
+                {/* Expanded: individual episode pills */}
+                {isOpen && f.episodes && (
+                  <div style={{ padding: "0 0.9rem 0.75rem", borderTop: "1px solid rgba(239,68,68,0.15)" }}>
+                    <div style={{ paddingTop: "0.6rem", display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
+                      {f.episodes.map(ep => (
+                        <span key={ep} style={{
+                          fontFamily: "monospace",
+                          fontSize: "0.75rem",
+                          padding: "0.2rem 0.55rem",
+                          borderRadius: 6,
+                          background: "rgba(239,68,68,0.15)",
+                          border: "1px solid rgba(239,68,68,0.3)",
+                          color: "#f87171",
+                        }}>
+                          #{ep}
+                        </span>
+                      ))}
+                    </div>
+                    <p style={{ margin: "0.6rem 0 0", fontSize: "0.75rem", color: "#64748b", fontStyle: "italic" }}>
+                      💡 {f.desc}
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Must watch */}
+      <div style={{ background: "rgba(16,185,129,0.07)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 10, padding: "1rem" }}>
+        <h3 style={{ fontSize: "0.82rem", color: "#34d399", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 0.5rem" }}>✅ Épisodes canon à regarder</h3>
+        <p style={{ margin: 0, fontSize: "0.82rem", color: "#94a3b8", lineHeight: 1.8, fontFamily: "monospace" }}>{anime.mustWatch}</p>
+      </div>
+    </div>
+  );
+}
+
+export default function FillerSkip() {
+  const [selected, setSelected] = useState(null);
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("name");
+
+  const filtered = animes
+    .filter(a => a.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      if (sort === "name") return a.name.localeCompare(b.name);
+      if (sort === "fillers") return (b.fillerEpisodes / b.totalEpisodes) - (a.fillerEpisodes / a.totalEpisodes);
+      if (sort === "episodes") return b.totalEpisodes - a.totalEpisodes;
+      return 0;
+    });
+
+  return (
+    <div style={{ fontFamily: "'Georgia', serif", background: "#09090f", minHeight: "100vh", color: "#e2e8f0" }}>
+      {/* Header */}
+      <div style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", padding: "1.75rem 1rem 1.25rem" }}>
+        <div style={{ maxWidth: 680, margin: "0 auto" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginBottom: "0.25rem" }}>
+            <h1 style={{ margin: 0, fontSize: "clamp(1.4rem, 4vw, 2rem)", fontWeight: 700, color: "#f8fafc", letterSpacing: "-0.02em" }}>FillerSkip</h1>
+            <span style={{ fontSize: "0.7rem", color: "#475569", fontFamily: "monospace", letterSpacing: "0.1em" }}>v1.1</span>
+          </div>
+          <p style={{ margin: 0, fontSize: "0.85rem", color: "#475569" }}>Guide des fillers pour les 10 animes les plus populaires</p>
+        </div>
+      </div>
+
+      {selected ? (
+        <div style={{ paddingTop: "1.5rem" }}>
+          <Detail anime={selected} onBack={() => setSelected(null)} />
+        </div>
+      ) : (
+        <div style={{ maxWidth: 680, margin: "0 auto", padding: "1.25rem 1rem 3rem" }}>
+          {/* Search & Sort */}
+          <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+            <input
+              placeholder="🔍 Rechercher un anime…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ flex: 1, minWidth: 160, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "0.55rem 0.9rem", color: "#e2e8f0", fontSize: "0.88rem", outline: "none", fontFamily: "inherit" }}
+            />
+            <select
+              value={sort}
+              onChange={e => setSort(e.target.value)}
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "0.55rem 0.9rem", color: "#94a3b8", fontSize: "0.85rem", outline: "none", fontFamily: "inherit", cursor: "pointer" }}
+            >
+              <option value="name">A → Z</option>
+              <option value="fillers">% fillers ↓</option>
+              <option value="episodes">Nb épisodes ↓</option>
+            </select>
+          </div>
+
+          {/* Legend */}
+          <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+            {[
+              { color: "#10b981", label: "< 20% fillers" },
+              { color: "#f59e0b", label: "20–40% fillers" },
+              { color: "#ef4444", label: "> 40% fillers" },
+            ].map(l => (
+              <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <div style={{ width: 8, height: 8, borderRadius: 99, background: l.color }} />
+                <span style={{ fontSize: "0.72rem", color: "#64748b" }}>{l.label}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Cards */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+            {filtered.map(anime => (
+              <AnimeCard key={anime.id} anime={anime} onClick={setSelected} />
+            ))}
+          </div>
+
+          <p style={{ textAlign: "center", fontSize: "0.72rem", color: "#334155", marginTop: "2rem" }}>
+            {animes.length} animes · Clique sur une carte pour le guide détaillé
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
